@@ -6,8 +6,8 @@ import org.apache.ibatis.annotations.Update;
 
 import java.math.BigDecimal;
 
-/**
- *  用户信息表
+/** 
+ *  用户信息表  包含余额
  */
 public interface UserMapper {
     int deleteByPrimaryKey(Long id);
@@ -46,9 +46,6 @@ public interface UserMapper {
     @Update("UPDATE users SET frozen_balance = frozen_balance - #{amount} WHERE user_id = #{userId}")
     int deductFrozenBalance(@Param("userId") String userId, @Param("amount") BigDecimal amount);
 
-    // unfreezeBalance: 解冻金额
-    @Update("UPDATE users SET balance = balance + #{amount}, frozen_balance = frozen_balance - #{amount} " +
-            "WHERE user_id = #{userId}")
-    int unfreezeBalance(@Param("userId") String userId, @Param("amount") BigDecimal amount);
+
 
 }
