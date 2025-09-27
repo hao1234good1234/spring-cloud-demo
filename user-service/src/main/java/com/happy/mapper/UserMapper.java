@@ -37,6 +37,7 @@ public interface UserMapper {
             @Param("amount") BigDecimal amount
     );
 
+/*
     // freezeBalance: 冻结金额（可用余额减，冻结金额加）
     @Update("UPDATE users SET balance = balance - #{amount}, frozen_balance = frozen_balance + #{amount} " +
             "WHERE user_id = #{userId} AND balance >= #{amount}")
@@ -50,6 +51,7 @@ public interface UserMapper {
     @Update("UPDATE users SET balance = balance + #{amount}, frozen_balance = frozen_balance - #{amount} " +
             "WHERE user_id = #{userId}")
     int unfreezeBalance(@Param("userId") String userId, @Param("amount") BigDecimal amount);
+*/
 
 
 }
