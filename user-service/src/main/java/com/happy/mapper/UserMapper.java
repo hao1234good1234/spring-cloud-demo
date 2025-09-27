@@ -37,19 +37,7 @@ public interface UserMapper {
             @Param("amount") BigDecimal amount
     );
 
-    // freezeBalance: 冻结金额（可用余额减，冻结金额加）
-    @Update("UPDATE users SET balance = balance - #{amount}, frozen_balance = frozen_balance + #{amount} " +
-            "WHERE user_id = #{userId} AND balance >= #{amount}")
-    int freezeBalance(@Param("userId") String userId, @Param("amount") BigDecimal amount);
 
-    // deductFrozenBalance: 扣除已冻结金额
-    @Update("UPDATE users SET frozen_balance = frozen_balance - #{amount} WHERE user_id = #{userId}")
-    int deductFrozenBalance(@Param("userId") String userId, @Param("amount") BigDecimal amount);
-
-    // unfreezeBalance: 解冻金额
-    @Update("UPDATE users SET balance = balance + #{amount}, frozen_balance = frozen_balance - #{amount} " +
-            "WHERE user_id = #{userId}")
-    int unfreezeBalance(@Param("userId") String userId, @Param("amount") BigDecimal amount);
 
 
 }
