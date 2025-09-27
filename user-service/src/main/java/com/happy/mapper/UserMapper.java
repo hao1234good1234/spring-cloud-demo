@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Update;
 import java.math.BigDecimal;
 
 /** 
- *  用户信息表  包含余额
+ *  用户信息表  
  */
 public interface UserMapper {
     int deleteByPrimaryKey(Long id);
@@ -30,7 +30,7 @@ public interface UserMapper {
     /**
      * 扣减余额（带余额不足校验 + 乐观锁）
      *
-     * @return 影响行数（1=成功，0=失败）
+     * @return 影响行数
      */
     int deductBalance(
             @Param("userId") String userId,
