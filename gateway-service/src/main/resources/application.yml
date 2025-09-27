@@ -1,0 +1,60 @@
+# ===================================================================
+# 网关服务配置文件：application.yml
+# 用途：定义网关服务名、从 Nacos 加载配置、启用监控端点
+# 说明：
+#   - 使用 Spring Boot 2.4+ 标准配置导入方式：spring.config.import
+#   - 替代旧版 bootstrap.yml 和 shared-configs 机制
+#   - 所有配置均从 Nacos 动态加载，支持热更新
+#   - 本文件为本地基础配置，不上传 Nacos
+# ===================================================================
+
+spring:
+  profiles:
+    active: dev
+  # 👇 核心配置：使用 Spring Boot 标准方式从 Nacos 加载外部配置
+  #     注意：必须使用 spring.config.import 才能触发 Nacos 配置加载
+  #     否则会报错：No spring.config.import property has been defined
+  config:
+    import:
+      # 1. 共享通用配置（数据库、Redis、日志、Feign 等公共设置）
+      - nacos:shared-common.yaml?group=COMMON_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # 2. 网关基础配置（跨域、全局过滤器、限流规则、默认超时等）
+      - nacos:shared-gateway-base.yaml?group=DEFAULT_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # 3. 开发环境专用路由规则（dev 环境的 route 定义）
+      #    格式：data-id = gateway-routes-${profile}.yaml
+      - nacos:gateway-routes.yaml?group=DEFAULT_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # 4. redis配置
+      - nacos:application-redis.yaml?group=DEFAULT_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # 5 新增：OpenAPI 网关聚合配置
+      - nacos:shared-openapi-gateway.yaml?group=COMMON_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # 6. 网关自身主配置（可覆盖端口、自定义属性等）  放在最后面可以覆盖前面的配置
+      - nacos:gateway-service.yaml?group=DEFAULT_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+  # 👇 Nacos 配置中心连接信息
+  cloud:
+    nacos:
+      # 配置中心
+      config:
+        server-addr: 127.0.0.1:8848  # Nacos 服务器地址
+        namespace: ${NACOS_NAMESPACE:dev-ns-id}  # ✅ 关键：动态命名空间
+        # 如果不设置，默认是 public 命名空间
+        group: DEFAULT_GROUP  # 配置分组
+      # 服务发现（注册中心）
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: ${NACOS_NAMESPACE:dev-ns-id}  # ✅ 必须加！，不然服务会注册到public命名空间
+        group: DEFAULT_GROUP
+
+# 配置 JWT 密钥（用于生成令牌）
+jwt:
+  # ✅ 推荐：只用字母和数字，避免任何特殊字符
+  # ❌ 避免：含 '-' 或 '/'
+  # secret: my-secret-key  ← 这个会导致 Base64 解码失败
+  # ✅ 必须 >= 32 个字符（32 字节 = 256 bits）
+  secret: mySuperLongAndSecureSecretKeyForDevOnly123456789012345678901234567890
+  expiration: 3600000
+

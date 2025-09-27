@@ -1,0 +1,52 @@
+# 该配置里的配置放到了nacos服务器上的order-service.yaml
+#server:
+#  port: 8082
+#
+#spring:
+#  application:
+#    name: order-service  # Spring Boot 应用名称，在微服务中作为服务标识
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: localhost:8848  # Nacos 服务注册与发现的地址，用于服务注册和心跳检测
+#    sentinel:
+#      transport:
+#        dashboard: localhost:8080  # Sentinel 控制台地址
+#      eager: true  # 启动时立即加载规则，可选
+#      datasource:     # 启用 Nacos 作为动态数据源
+#        # ==== 限流规则 ====
+#        flow:
+#          nacos:
+#            server-addr: localhost:8848
+#            data-id: ${spring.application.name}-sentinel-flow-rules
+#            group-id: SENTINEL_GROUP
+#            data-type: json
+#            rule-type: flow  # ⚠️ 注意：这里是 flow
+#        # ==== 降级/熔断规则（新增！）====
+##        degrade:
+##          nacos:
+##            server-addr: localhost:8848
+##            data-id: ${spring.application.name}-sentinel-degrade-rules
+##            group-id: SENTINEL_GROUP
+##            data-type: json
+##            rule-type: degrade   # ⚠️ 注意：这里是 degrade
+##    loadbalancer:
+##      retry:
+##        enabled: true  # 启用 LoadBalancer，重试配置
+##      configurations: random  # 该配置有bug，启动的时候random策略的bean在读取的时候没有创建，推荐在代码中用java配置类来实现
+#
+#
+#
+## Feign 客户端配置（可选，用于服务间调用）
+#feign:
+#  client:
+#    config:
+#      default:  # 对所有 Feign 客户端生效的默认配置
+#        loggerLevel: full  # 开启 Feign 的全量日志，包括请求头、请求体、响应状态等，便于调试
+#        # 目前设置是full，注意：生产环境建议使用 BASIC 或 NONE 级别，避免性能开销
+#        connectTimeout: 9000  # 连接超时时间，单位毫秒，测试熔断时请设置长一些
+#        readTimeout: 9000     # 读取超时时间，单位毫秒，测试熔断时请设置长一些
+#  hystrix:
+#    enabled: false  # 明确关闭 Hystrix（用 Sentinel）
+#  sentinel:
+#    enabled: true  # ✅ 开启 Feign 对 Sentinel 的支持

@@ -1,0 +1,35 @@
+# ============= Knife4j 聚合文档核心配置 =============
+knife4j:
+  gateway:
+    enabled: true # ✅ 启用网关聚合文档功能
+    strategy: MANUAL  # ✅ 策略：手动配置
+    discover:
+      version: OpenAPI3  # ✅ OpenAPI 版本
+      enabled: true
+    routes:  # ✅ 手动配置的服务列表
+      - name: 用户服务
+        serviceName: user-service
+        url: /api/user/v3/api-docs
+      - name: 订单服务
+        serviceName: order-service
+        url: /api/order/v3/api-docs
+
+# ============= 禁用网关自身的 OpenAPI 文档（避免冲突）============
+springdoc:
+  api-docs:
+    enabled: false                # ✅ 禁用网关自身文档
+  swagger-ui:
+    enabled: true                 # ✅ 启用 Swagger UI
+    path: /doc.html               # ✅ UI 访问路径
+
+# ============= 放行静态资源（关键！）============
+spring:
+  web:
+    resources:
+      static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+
+# ============= 开启调试日志（可选，方便排查问题）============
+logging:
+  level:
+    com.github.xiaoymin.knife4j: DEBUG
+    org.springframework.web: DEBUG

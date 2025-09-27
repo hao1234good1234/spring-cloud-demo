@@ -1,0 +1,156 @@
+# ===================================================================
+# 共享配置：shared-common.yaml
+# 用途：所有微服务公共配置（Nacos、Sentinel、Feign 等）
+# 说明：此配置会被 order-service、user-service 等所有服务加载
+# 修改后，所有服务动态刷新生效（需 refresh: true）
+# ===================================================================
+
+# ========================
+# 1. Nacos 服务注册与发现
+# ========================
+spring:
+  cloud:
+    nacos:
+      discovery:
+        # Nacos 服务器地址（所有服务共用）
+        # 如果 Nacos 换了 IP 或端口，只需改这里，所有服务自动生效
+        server-addr: localhost:8848
+    # ========================
+    # 2. Sentinel 流控组件
+    # ========================
+    sentinel:
+      # Sentinel 控制台地址（所有服务上报指标）
+      # 访问 http://localhost:8080 可查看实时监控、设置规则
+      transport:
+        dashboard: localhost:8080
+
+      # 启动时立即初始化 Sentinel，避免第一次调用才加载
+      eager: true
+
+      # ========================
+      # 3. Sentinel 动态规则数据源（Nacos）
+      # ========================
+      datasource:
+        # ---- 限流规则（Flow Rules）----
+        flow:
+          nacos:
+            # Nacos 地址
+            server-addr: localhost:8848
+            # Data ID 格式：{服务名}-sentinel-flow-rules
+            # 例如：order-service-sentinel-flow-rules
+            data-id: ${spring.application.name}-sentinel-flow-rules
+            # 分组，建议统一用 SENTINEL_GROUP 管理所有 Sentinel 规则
+            group-id: SENTINEL_GROUP
+            namespace: ${NACOS_NAMESPACE:dev-ns-id}  # ✅ 关键：动态命名空间, ✅ 规则也在同一命名空间
+            # 数据格式：JSON
+            data-type: json
+            # 规则类型：flow（限流）
+            rule-type: flow
+
+
+        # ---- 降级/熔断规则（Degrade Rules）----
+        # 可选：如果要用熔断功能，取消下面注释
+        degrade:
+          nacos:
+            server-addr: localhost:8848
+            data-id: ${spring.application.name}-sentinel-degrade-rules
+            group-id: SENTINEL_GROUP
+            namespace: ${NACOS_NAMESPACE:dev-ns-id}  # ✅ 关键：动态命名空间, ✅ 规则也在同一命名空间
+            data-type: json
+            rule-type: degrade
+
+# ========================
+# 4. Feign 远程调用配置
+# ========================
+feign:
+  # Feign 客户端默认配置（对所有 @FeignClient 生效）
+  client:
+    config:
+      default:
+        # 日志级别：full（全量日志，含请求头、请求体）
+        # 生产环境建议改为 basic 或 none，避免性能开销
+        loggerLevel: full
+
+        # 连接超时时间（毫秒）
+        # 如果服务启动慢或网络延迟高，可适当调大
+        connectTimeout: 9000
+
+        # 读取超时时间（毫秒）
+        # 超过这个时间未收到响应，Feign 会抛出异常
+        readTimeout: 9000
+
+  # Sentinel 熔断支持
+  sentinel:
+    # 开启 Feign 对 Sentinel 的集成
+    # 当调用失败或超时时，自动触发熔断
+    enabled: true
+
+# ========================
+# 5. 其他公共配置（可选）
+# ========================
+# 例如：统一日志级别、监控等
+logging:
+  level:
+    com.example: DEBUG
+
+# 生产环境配置。不推荐在生产环境用 include: '*'，推荐只暴露必要的端点，如：health,info,env,metrics,refresh,loggers
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  # 更安全：关闭敏感端点
+  endpoint:
+    env:
+      enabled: false
+    beans:
+      enabled: false
+    metrics:
+      enabled: false
+
+# ========================
+# Seata 配置：纯 TCC 模式
+# ========================
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  tx-service-group: my_tcc_tx_group   # 事务组名（建议语义化命名，如 xxx_tcc_tx_group）
+  service:
+    vgroup-mapping:
+      my_tcc_tx_group: default        # 显式声明映射（推荐）
+    default:
+      # 使用变量，便于环境切换
+      # grouplist: ${SEATA_SERVER_ADDR:127.0.0.1:8091}
+      grouplist: 192.168.43.204:8091
+  # 🔥 关键：禁用 AT 模式的数据源代理，避免触发 undo_log
+  enable-auto-data-source-proxy: false
+
+  # ========================
+  # Seata 配置中心（Nacos）
+  # ========================
+  config:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      namespace: ${NACOS_NAMESPACE:dev-ns-id}
+      group: SEATA_GROUP
+      # Data ID 命名规则：seata-server 使用的配置文件名
+      data-id: seata-server.properties   # ✅ 显式指定 Data ID，只有读取 Data ID 的配置文件，seata的全局事务才会生效
+
+  # ========================
+  # Seata 注册中心（Nacos）
+  # ========================
+  registry:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      namespace: ${NACOS_NAMESPACE:dev-ns-id}
+      group: SEATA_GROUP
+      application: seata-server       # Seata Server 在 Nacos 中注册的应用名
+      # ✅ 关键：指定客户端真实可访问 IP
+      cluster: default
+  # ✅ 强制指定本机 IP（替换成你机器的真实内网 IP）
+  client:
+    rm:
+      report-success-enable: true
+    #ip: 29.212.17.21:8082  #改成 机器的局域网 IP + 端口（可选端口），每个服务的端口号不同，所以这个属性由服务的application.yml自行配置

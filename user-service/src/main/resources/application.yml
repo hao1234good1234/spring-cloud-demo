@@ -1,0 +1,45 @@
+spring:
+  profiles:
+    active: dev
+  # 👇 核心：使用标准方式从 Nacos 加载多个配置文件
+  #      Spring Boot 2.4+ 要求必须使用 spring.config.import 触发外部配置加载
+  config:
+    import:
+      # 通用共享配置（统一日志级别、暴露端点、开启mybatis日志等公共设置）
+      - nacos:shared-common.yaml?group=COMMON_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # —— Nacos注册与发现 ——
+      - nacos:nacos-discovery.yaml?group=COMMON_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # —— sentinel流控与容错 ——
+      #  Sentinel 核心配置（dashboard、eager）
+      - nacos:sentinel-core.yaml?group=SENTINEL_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+      #	流控规则数据源
+      - nacos:sentinel-datasource-flow.yaml?group=SENTINEL_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+      # 熔断规则数据源
+      - nacos:sentinel-datasource-degrade.yaml?group=SENTINEL_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # —— 	Feign 公共配置 ——
+      - nacos:feign-client.yaml?group=COMMON_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # —— Seata 客户端完整配置 ——
+      - nacos:seata-config.yaml?group=SEATA_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # 👇 新增：OpenAPI + Knife4j 公共配置
+      - nacos:shared-openapi.yaml?group=COMMON_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+
+      # 100. 用户服务自身的主配置文件（可包含 server.port、自定义属性等） 放在最后面可以覆盖前面的配置
+      - nacos:user-service.yaml?group=DEFAULT_GROUP&namespace=${NACOS_NAMESPACE:dev-ns-id}
+  cloud:
+    nacos:
+      # 配置中心
+      config:
+        server-addr: 127.0.0.1:8848  # Nacos 服务器地址
+        namespace: ${NACOS_NAMESPACE:dev-ns-id}  # ✅ 关键：动态命名空间
+        # 如果不设置，默认是 public 命名空间
+        group: DEFAULT_GROUP  # 配置分组
+      # 服务发现（注册中心）
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: ${NACOS_NAMESPACE:dev-ns-id}  # ✅ 必须加！，不然服务会注册到public命名空间
+        group: DEFAULT_GROUP

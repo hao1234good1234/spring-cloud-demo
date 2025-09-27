@@ -1,0 +1,30 @@
+[
+  {
+    "数据集名称": "操作成功",
+    "userid": "user_001",
+    "amount": 10,
+    "expectSuccess": "true",
+    "expectMessage": "操作成功"
+  },
+  {
+    "数据集名称": "金额不能为空",
+    "userid": "user_001",
+    "amount": null,
+    "expectSuccess": "false",
+    "expectMessage": "金额不能为空"
+  },
+  {
+    "数据集名称": "用户名不存在",
+    "userid": "user1_001",
+    "amount": 10,
+    "expectSuccess": "false",
+    "expectMessage": "用户名不存在"
+  },
+  {
+    "数据集名称": "库存不足",
+    "userid": "user_001",
+    "amount": 100000,
+    "expectSuccess": "false",
+    "expectMessage": "库存不足"
+  }
+]

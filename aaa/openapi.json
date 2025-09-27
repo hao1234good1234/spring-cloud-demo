@@ -1,0 +1,223 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "API Documentation",
+    "version" : "1.0"
+  },
+  "paths" : {
+    "/api/order/{id}" : {
+      "get" : {
+        "summary" : "getOrder",
+        "description" : "getOrder",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "code" : {
+                      "type" : "integer",
+                      "description" : "状态码（200 成功，其他失败）\n状态码"
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : "描述信息"
+                    },
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : "是否成功，这个值不是多余的，省去前端要判断code等于啥值时是成功的麻烦，前端会根据这个值来判断是否成功\n是否成功"
+                    },
+                    "data" : {
+                      "type" : "string",
+                      "description" : "数据"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/order/test" : {
+      "get" : {
+        "summary" : "testConfig",
+        "description" : "testConfig",
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "code" : {
+                      "type" : "integer",
+                      "description" : "状态码（200 成功，其他失败）\n状态码"
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : "描述信息"
+                    },
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : "是否成功，这个值不是多余的，省去前端要判断code等于啥值时是成功的麻烦，前端会根据这个值来判断是否成功\n是否成功"
+                    },
+                    "data" : {
+                      "type" : "string",
+                      "description" : "数据"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/order/test-exception" : {
+      "get" : {
+        "summary" : "testException",
+        "description" : "testException",
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/order/create" : {
+      "post" : {
+        "summary" : "createOrder",
+        "description" : "createOrder",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "required" : [ "amount", "userId" ],
+                "type" : "object",
+                "properties" : {
+                  "userId" : {
+                    "type" : "string",
+                    "description" : "用户ID"
+                  },
+                  "amount" : {
+                    "minimum" : 0.01,
+                    "exclusiveMinimum" : false,
+                    "type" : "number",
+                    "description" : "订单金额"
+                  }
+                },
+                "description" : ""
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "code" : {
+                      "type" : "integer",
+                      "description" : "状态码（200 成功，其他失败）\n状态码"
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : "描述信息"
+                    },
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : "是否成功，这个值不是多余的，省去前端要判断code等于啥值时是成功的麻烦，前端会根据这个值来判断是否成功\n是否成功"
+                    },
+                    "data" : {
+                      "type" : "string",
+                      "description" : "数据"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/order/seata/create" : {
+      "post" : {
+        "summary" : "createOrder",
+        "description" : "createOrder",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "query",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        }, {
+          "name" : "amount",
+          "in" : "query",
+          "description" : "",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "nullable" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "code" : {
+                      "type" : "integer",
+                      "description" : "状态码（200 成功，其他失败）\n状态码"
+                    },
+                    "message" : {
+                      "type" : "string",
+                      "description" : "描述信息"
+                    },
+                    "success" : {
+                      "type" : "boolean",
+                      "description" : "是否成功，这个值不是多余的，省去前端要判断code等于啥值时是成功的麻烦，前端会根据这个值来判断是否成功\n是否成功"
+                    },
+                    "data" : {
+                      "type" : "string",
+                      "description" : "数据"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : { }
+}

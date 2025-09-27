@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- ✅ 必须指向父项目 -->
+    <parent>
+        <groupId>com.happy</groupId>
+        <artifactId>spring-cloud-demo</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>  <!-- ⭐ 必须写 -->
+    </parent>
+
+    <artifactId>gateway-service</artifactId>
+
+    <dependencies>
+        <!--导入本地的模块-->
+        <dependency>
+            <groupId>com.happy</groupId>
+            <artifactId>common-utils</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!--=============================================================================-->
+
+        <!-- 1. Gateway 核心依赖（必须） -->
+        <!-- 基于 WebFlux，不可引入 spring-boot-starter-web -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+
+        <!-- 2. Nacos 服务注册与发现 -->
+        <!-- 用于服务发现，支持 lb:// 协议 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+
+        <!-- 3. 负载均衡器（必须） -->
+        <!-- 支持 lb://user-service 这样的路由转发 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
+        <!-- 4. 监控与管理端点 -->
+        <!-- 提供 /actuator/gateway/routes, /actuator/health 等 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- 5. Nacos 配置中心 -->
+        <!-- 从 Nacos 动态加载配置文件（如 gateway-routes-dev.yaml） -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <!-- 6、Redis 响应式支持（Gateway 限流必需） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+        </dependency>
+        <!--skywalking整合logback需要的依赖-->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-logback-1.x</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-trace</artifactId>
+            <version>9.5.0</version>
+        </dependency>
+        <!-- Knife4j 网关聚合文档 只有gateway-service需要该依赖 -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-gateway-spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+</project>

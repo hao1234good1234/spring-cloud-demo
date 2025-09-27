@@ -1,0 +1,114 @@
+# ===================================================================
+# 网关路由配置文件 - 开发环境 (gateway-routes.yaml)
+#
+# 用途：
+#   定义请求路径与后端微服务之间的映射关系（路由规则）
+#   实现统一入口、负载均衡、权限控制等网关核心功能
+#
+# 特性：
+#   ✅ 动态生效：通过 Nacos 配置中心管理，修改后实时更新，无需重启网关
+#   ✅ 路由隔离：不同路径指向不同服务，实现服务解耦
+#   ✅ 权限控制：通过 metadata 配置 requiredRoles 实现基于角色的访问控制
+#   ✅ 负载均衡：使用 lb:// 前缀自动集成 Ribbon 或 LoadBalancer
+#
+# 注意：
+#   ❗ 仅用于开发环境（dev），生产环境应移除 debug 路由等不安全配置
+# ===================================================================
+spring:
+  cloud:
+    gateway:
+      # 路由规则列表：每个路由定义一个请求转发规则
+      routes:
+        # -------------------------------------------------------------------
+        # 路由 1: 用户服务（User Service）
+        # 用途: 处理用户登录、注册、信息查询等通用用户相关接口
+        # 权限: 需要 USER 或 ADMIN 角色
+        # -------------------------------------------------------------------
+        # ⭐ 专为 OpenAPI 设计的路由 —— 高优先级，先匹配
+        #        - id: openapi-docs-route
+        #          uri: lb://user-service
+        #          predicates:
+        #            - Path=/api/user/v3/api-docs, /api/order/v3/api-docs  # 可以写多个
+        #          filters:
+        #            - StripPrefix=2  # 只对 api-docs 生效：/api/user/v3/api-docs → /v3/api-docs
+        #          order: -1  # 优先级最高！确保先匹配这个
+        # 👇 原有的通用路由（不再 StripPrefix）
+
+        - id: user-service                   # 路由唯一标识，建议语义化命名
+          uri: lb://user-service           # 目标服务地址
+          #   lb:// = LoadBalancer，启用负载均衡
+          #   自动发现注册中心中的 user-service 实例并轮询分发请求
+          predicates: # 匹配条件（断言）：满足以下条件时，请求走此路由
+            - Path=/api/user/**           #   路径匹配：请求路径以 /api/user/ 开头即命中
+            #   示例：/api/user/login、/api/user/profile 都会转发
+          filters:
+            # 👇 添加限流过滤器
+            - name: RequestRateLimiter
+              args:
+                # 每秒生成 5 个令牌（匀速）
+                redis-rate-limiter.replenishRate: 1
+
+                # 令牌桶最多存 10 个令牌（允许突发）
+                redis-rate-limiter.burstCapacity: 1
+
+                # 使用 @userKeyResolver 这个 Bean
+                key-resolver: "#{@ipKeyResolver}"
+          metadata: # 自定义元数据：用于在过滤器中做额外逻辑处理
+            requiredRoles: USER,ADMIN      #   所需角色列表（逗号分隔），表示访问该路由需具备其一
+            # ❌ 不再加 StripPrefix！保持原始路径转发
+          order: 0
+        - id: user-tcc                 # 路由唯一标识，建议语义化命名
+          uri: lb://user-service           # 目标服务地址
+          predicates:
+            - Path=/balance/tcc/**           #   路径匹配：请求路径以 /api/user/ 开头即命中
+          metadata: # 自定义元数据：用于在过滤器中做额外逻辑处理
+            requiredRoles: USER      #   所需角色列表（逗号分隔），表示访问该路由需具备其一
+          order: 1
+        # -------------------------------------------------------------------
+        # 路由 3: 用户访问订单信息
+        # -------------------------------------------------------------------
+        - id: order-api
+          uri: lb://order-service
+          predicates:
+            - Path=/api/order/**
+          metadata:
+            requiredRoles: USER
+          order: -1  # 优先级最高！确保先匹配这个
+        # -------------------------------------------------------------------
+        # 路由 3: 操作员专用接口（Operator API）
+        # 路径: /api/operator/** → 转发到 order-service
+        # 用途: 操作员处理日常订单、审核等中等权限接口
+        # 权限: OPERATOR 或 ADMIN 角色
+        # -------------------------------------------------------------------
+        - id: operator-api
+          uri: lb://order-service          # 同样转发到订单服务，但路径不同，权限不同
+          predicates:
+            - Path=/api/operator/**       # 匹配 /api/operator/ 下的所有接口
+          metadata:
+            requiredRoles: OPERATOR,ADMIN  # OPERATOR 可访问，ADMIN 作为超级管理员也可访问
+          order: 0
+        # -------------------------------------------------------------------
+        # 路由 4: 公共接口（Public API）
+        # 路径: /api/public/** → 转发到 user-service
+        # 用途: 不需要角色权限的公共接口（如获取公告、系统时间等）
+        # 权限: 已登录用户即可访问（无需特定角色）
+        # -------------------------------------------------------------------
+        - id: public-api
+          uri: lb://user-service
+          predicates:
+            - Path=/api/public/**         # 匹配公共接口路径
+          # metadata 中未配置 requiredRoles → AuthFilter 会放行所有已登录用户
+          # 适用于：登录后即可访问，不区分角色的通用功能
+
+        # -------------------------------------------------------------------
+        # 路由 5: 调试专用路由（Debug Route）
+        # 路径: /debug/** → 转发到 user-service
+        # 用途: 开发环境调试内部接口（如查看缓存、测试私有方法）
+        # 注意: ⚠️ 仅开发环境保留，生产环境必须删除或禁用！
+        # -------------------------------------------------------------------
+        - id: debug-route
+          uri: lb://user-service
+          predicates:
+            - Path=/debug/**              # 所有 /debug/ 开头的请求都放行
+          # 无 requiredRoles：调试接口通常不鉴权（仅限内网）
+          # 可配合 IP 白名单进一步限制（如需）

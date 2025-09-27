@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- ✅ 必须指向父项目 -->
+    <parent>
+        <groupId>com.happy</groupId>
+        <artifactId>spring-cloud-demo</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>  <!-- ⭐ 必须写 -->
+    </parent>
+
+    <artifactId>common-web</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <!--导入本地的模块-->
+        <dependency>
+            <groupId>com.happy</groupId>
+            <artifactId>common-utils</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!--=============================================================================-->
+
+        <!-- Spring Boot Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <scope>provided</scope> <!-- 表示使用者必须引入 -->
+        </dependency>
+        <!-- Knife4j OpenAPI 3 增强版 -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
+        <!--集成 Seata Client-->
+        <dependency>
+            <groupId>io.seata</groupId>
+            <artifactId>seata-spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+
+</project>

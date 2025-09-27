@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.happy.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="com.happy.entity.User">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="balance" jdbcType="DECIMAL" property="balance" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, username, balance
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_user
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.happy.entity.User" useGeneratedKeys="true">
+    insert into t_user (user_id, username, balance
+      )
+    values (#{userId,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{balance,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.happy.entity.User" useGeneratedKeys="true">
+    insert into t_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="balance != null">
+        balance,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null">
+        #{balance,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.happy.entity.User">
+    update t_user
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null">
+        balance = #{balance,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.happy.entity.User">
+    update t_user
+    set user_id = #{userId,jdbcType=VARCHAR},
+      username = #{username,jdbcType=VARCHAR},
+      balance = #{balance,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByUserId" resultMap="BaseResultMap">
+    SELECT id, user_id, username, balance
+    FROM t_user
+    WHERE user_id = #{userId}
+  </select>
+
+  <!-- 扣减余额：SQL 层面保证 balance >= amount -->
+  <update id="deductBalance">
+    UPDATE t_user
+    SET balance = balance - #{amount}
+    WHERE user_id = #{userId}
+    AND balance >= #{amount}  <!-- 关键：防超扣 -->
+  </update>
+
+
+
+</mapper>

@@ -1,0 +1,43 @@
+# ======================
+# IDE - IntelliJ IDEA
+# ======================
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ======================
+# Build - Maven
+# ======================
+target/
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ======================
+# Logs & Temp Files
+# ======================
+logs/
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+$RECYCLE.BIN/
+
+# ======================
+# OS & Editor
+# ======================
+.DS_Store
+desktop.ini
+*.bak
+*.orig
+
+# ======================
+# Sensitive / Local Config (Optional)
+# ======================
+# 如果你有本地专用配置文件，可取消下面注释
+# application-local.yml
+# application-dev.yml

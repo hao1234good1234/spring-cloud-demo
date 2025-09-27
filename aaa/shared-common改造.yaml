@@ -1,0 +1,29 @@
+# ===================================================================
+#  其他公共配置（可选）
+# ===================================================================
+# 生产环境配置。不推荐在生产环境用 include: '*'，推荐只暴露必要的端点，如：health,info,env,metrics,refresh,loggers
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  # 更安全：关闭敏感端点
+  endpoint:
+    env:
+      enabled: false
+    beans:
+      enabled: false
+    metrics:
+      enabled: false
+# 例如：统一日志级别、监控等
+logging:
+  level:
+    com.happy.mapper: DEBUG   # 你的 Mapper 包路径
+    org.springframework.web: DEBUG
+    org.springframework.transaction: DEBUG
+    org.apache.ibatis: TRACE
+
+# 开启 MyBatis 日志（可选）
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

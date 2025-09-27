@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.happy.mapper.TccTransactionLogMapper">
+  <resultMap id="BaseResultMap" type="com.happy.entity.TccTransactionLog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="xid" jdbcType="VARCHAR" property="xid" />
+    <result column="branch_id" jdbcType="BIGINT" property="branchId" />
+    <result column="transaction_type" jdbcType="VARCHAR" property="transactionType" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, xid, branch_id, transaction_type, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tcc_transaction_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tcc_transaction_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.happy.entity.TccTransactionLog" useGeneratedKeys="true">
+    insert into tcc_transaction_log (xid, branch_id, transaction_type, 
+      create_time)
+    values (#{xid,jdbcType=VARCHAR}, #{branchId,jdbcType=BIGINT}, #{transactionType,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.happy.entity.TccTransactionLog" useGeneratedKeys="true">
+    insert into tcc_transaction_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="xid != null">
+        xid,
+      </if>
+      <if test="branchId != null">
+        branch_id,
+      </if>
+      <if test="transactionType != null">
+        transaction_type,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="xid != null">
+        #{xid,jdbcType=VARCHAR},
+      </if>
+      <if test="branchId != null">
+        #{branchId,jdbcType=BIGINT},
+      </if>
+      <if test="transactionType != null">
+        #{transactionType,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.happy.entity.TccTransactionLog">
+    update tcc_transaction_log
+    <set>
+      <if test="xid != null">
+        xid = #{xid,jdbcType=VARCHAR},
+      </if>
+      <if test="branchId != null">
+        branch_id = #{branchId,jdbcType=BIGINT},
+      </if>
+      <if test="transactionType != null">
+        transaction_type = #{transactionType,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.happy.entity.TccTransactionLog">
+    update tcc_transaction_log
+    set xid = #{xid,jdbcType=VARCHAR},
+      branch_id = #{branchId,jdbcType=BIGINT},
+      transaction_type = #{transactionType,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 记录 Confirm 日志 -->
+  <!-- 使用 INSERT ... ON DUPLICATE KEY UPDATE 实现幂等插入 -->
+  <insert id="logConfirm">
+    INSERT INTO tcc_transaction_log (xid, transaction_type, create_time)
+    VALUES (#{xid}, 'CONFIRM', NOW())
+      ON DUPLICATE KEY UPDATE create_time = create_time
+  </insert>
+
+  <!-- 记录 Cancel 日志 -->
+  <insert id="logCancel">
+    INSERT INTO tcc_transaction_log (xid, transaction_type, create_time)
+    VALUES (#{xid}, 'CANCEL', NOW())
+      ON DUPLICATE KEY UPDATE create_time = create_time
+  </insert>
+
+  <!-- 判断 Confirm 是否已处理 -->
+  <select id="isConfirmProcessed" resultType="boolean">
+    SELECT EXISTS(
+      SELECT 1
+      FROM tcc_transaction_log
+      WHERE xid = #{xid} AND transaction_type = 'CONFIRM'
+    )
+  </select>
+
+  <!-- 判断 Cancel 是否已处理 -->
+  <select id="isCancelProcessed" resultType="boolean">
+    SELECT EXISTS(
+      SELECT 1
+      FROM tcc_transaction_log
+      WHERE xid = #{xid} AND transaction_type = 'CANCEL'
+    )
+  </select>
+
+</mapper>

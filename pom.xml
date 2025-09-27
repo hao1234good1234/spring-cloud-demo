@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ============ 项目基本信息 ============ -->
+    <groupId>com.happy</groupId>
+    <artifactId>spring-cloud-demo</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>spring-cloud-demo</name>
+    <description>Spring Cloud 微服务学习项目</description>
+
+    <!-- ============ 版本属性统一管理 ============ -->
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Spring Boot 版本 -->
+        <spring-boot.version>3.2.12</spring-boot.version>
+
+        <!-- Spring Cloud 版本 -->
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
+
+        <!-- Spring Cloud Alibaba 版本 -->
+        <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
+
+        <!-- Sentinel 核心版本（用于 datasource-nacos） -->
+        <sentinel.version>1.8.8</sentinel.version>
+        <lombok.version>1.18.36</lombok.version>
+        <rocketmq-spring-boot-starter.version>2.3.4</rocketmq-spring-boot-starter.version>
+        <rocketmq-client.version>5.2.0</rocketmq-client.version>
+        <mybatis.plus.version>3.5.6</mybatis.plus.version>
+        <mysql.version>8.3.0</mysql.version>
+        <seata-spring-boot-starter.version>2.0.0</seata-spring-boot-starter.version>
+        <Knife4j.version>4.5.0</Knife4j.version>
+        <knife4j-gateway.version>4.5.0</knife4j-gateway.version>
+
+    </properties>
+
+    <!-- ============ 继承 Spring Boot ============ -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.12</version>
+        <relativePath/>
+    </parent>
+
+    <!-- ============ 依赖管理（Dependency Management） ============ -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud 依赖管理 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Cloud Alibaba 依赖管理 -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- spring-cloud-starter-openfeign已经被 spring-cloud-dependencies这个 BOM（Bill of Materials）自动管理了-->
+            <!-- Sentinel 核心组件（用于 Nacos 数据源） -->
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-datasource-nacos</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <!--rocketmq：这里排除自带的5.1.4的rocketmq-client客户端，不然启动的时候会因为版本问题调用高版本的API接口会报错-->
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq-spring-boot-starter.version}</version>
+                <exclusions>
+                    <!-- 排除自带的低版本 client -->
+                    <exclusion>
+                        <groupId>org.apache.rocketmq</groupId>
+                        <artifactId>rocketmq-client</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- 手动引入 5.2.0 客户端 -->
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>${rocketmq-client.version}</version>
+            </dependency>
+            <!-- MySQL + MyBatis -->
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis.plus.version}</version>
+            </dependency>
+            <!--集成 Seata Client-->
+            <dependency>
+                <groupId>io.seata</groupId>
+                <artifactId>seata-spring-boot-starter</artifactId>
+                <version>${seata-spring-boot-starter.version}</version>
+            </dependency>
+            <!--skywalking整合logback需要的依赖-->
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>apm-toolkit-logback-1.x</artifactId>
+                <version>9.5.0</version> <!-- 必须和你的 SkyWalking Agent 版本一致 -->
+            </dependency>
+            <!-- Knife4j OpenAPI 3 增强版  -->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${Knife4j.version}</version>
+            </dependency>
+            <!-- Knife4j 网关聚合文档 这个依赖是专门为gateway-service准备的，其他服务不要加 -->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-gateway-spring-boot-starter</artifactId>
+                <version>${knife4j-gateway.version}</version> <!-- 推荐最新稳定版 -->
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ============ 子模块 =========== -->
+    <modules>
+        <module>user-service</module>
+        <module>order-service</module>
+        <module>gateway-service</module>
+        <module>common-utils</module>
+        <module>common-web</module>
+    </modules>
+
+    <!-- ============ 构建插件 ============ -->
+    <build>
+        <plugins>
+            <!-- Spring Boot 打包插件 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- 编译器插件：Java 17 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
