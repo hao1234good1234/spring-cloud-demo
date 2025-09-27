@@ -1,14 +1,14 @@
 package com.happy.entity;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 订单主表
@@ -48,6 +48,6 @@ public class Order implements Serializable {
      * 订单创建时间
      */
     private LocalDateTime createTime;
-
+    @Serial
     private static final long serialVersionUID = 1L;
 }

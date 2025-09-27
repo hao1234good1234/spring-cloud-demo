@@ -1,5 +1,6 @@
 package com.happy.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -35,6 +36,6 @@ public class TccTransactionLog implements Serializable {
      * 日志创建时间
      */
     private LocalDateTime createTime;
-
+    @Serial
     private static final long serialVersionUID = 1L;
 }

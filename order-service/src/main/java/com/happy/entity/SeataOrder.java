@@ -1,5 +1,6 @@
 package com.happy.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -46,6 +47,6 @@ public class SeataOrder implements Serializable {
      * 最后更新时间
      */
     private LocalDateTime updateTime;
-
+    @Serial
     private static final long serialVersionUID = 1L;
 }

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -66,6 +67,6 @@ public class LocalTransactionLog implements Serializable {
      * 记录最后更新时间，便于监控处理进度和重试时间
      */
     private LocalDateTime updateTime;
-
+    @Serial
     private static final long serialVersionUID = 1L;
 }

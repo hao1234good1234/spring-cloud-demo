@@ -1,5 +1,6 @@
 package com.happy.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import lombok.Data;
@@ -29,6 +30,6 @@ public class User implements Serializable {
      * 账户余额，单位：元，扣款时需保证不为负数
      */
     private BigDecimal balance;
-
+    @Serial
     private static final long serialVersionUID = 1L;
 }

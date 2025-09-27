@@ -1,5 +1,6 @@
 package com.happy.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -36,6 +37,6 @@ public class DeductRecord implements Serializable {
      * 扣款记录创建时间
      */
     private LocalDateTime createTime;
-
+    @Serial
     private static final long serialVersionUID = 1L;
 }
